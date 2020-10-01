@@ -31,13 +31,17 @@ module Fastlane
         request["client_id"] = client_id
         request["Authorization"] = "Bearer #{token}"
         response = http.request(request)
-
+        if !response.kind_of? Net::HTTPSuccess
+          UI.user_error!("Cannot obtain app info, please check API Token / Permissions (status code: #{response.code})")
+          return false
+        end
         result_json = JSON.parse(response.body)
 
         if result_json['ret']['code'] == 0
           UI.success("Successfully getting app info")
           return result_json['appInfo']
         else
+          UI.user_error!(result_json)
           UI.user_error!("Failed to get app info")
         end
 
@@ -57,12 +61,16 @@ module Fastlane
         request.body = {privacyPolicy: privacy_policy_url}.to_json
 
         response = http.request(request)
-
+        if !response.kind_of? Net::HTTPSuccess
+          UI.user_error!("Cannot update app info, please check API Token / Permissions (status code: #{response.code})")
+          return false
+        end
         result_json = JSON.parse(response.body)
 
         if result_json['ret']['code'] == 0
           UI.success("Successfully updated app info")
         else
+          UI.user_error!(result_json)
           UI.user_error!("Failed to update app info")
         end
       end
@@ -105,6 +113,10 @@ module Fastlane
           request.set_form form_data, 'multipart/form-data'
 
           result = http.request(request)
+          if !result.kind_of? Net::HTTPSuccess
+            UI.user_error!("Cannot upload app, please check API Token / Permissions (status code: #{result.code})")
+            return false
+          end
           result_json = JSON.parse(result.body)
 
           if result_json['result']['result_code'].to_i == 0
@@ -129,7 +141,10 @@ module Fastlane
 
             request.body = data
             response = http.request(request)
-
+            if !response.kind_of? Net::HTTPSuccess
+              UI.user_error!("Cannot save app info, please check API Token / Permissions (status code: #{response.code})")
+              return false
+            end
             result_json = JSON.parse(response.body)
 
             if result_json['ret']['code'] == 0
@@ -202,12 +217,18 @@ module Fastlane
 
         response = http.request(request)
 
+        if !response.kind_of? Net::HTTPSuccess
+          UI.user_error!("Cannot submit app for review (status code: #{response.code}, body: #{response.body})")
+          return false
+        end
+
         result_json = JSON.parse(response.body)
 
         if result_json['ret']['code'] == 0
             UI.success("Successfully submitted app for review")
         else
-          UI.user_error!("Failed to submit app for review")
+          UI.user_error!(result_json)
+          UI.user_error!("Failed to submit app for review.")
         end
 
       end
