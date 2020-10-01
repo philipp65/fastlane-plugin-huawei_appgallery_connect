@@ -138,7 +138,7 @@ module Fastlane
                 fileDestUrl: result_json['result']['UploadFileRsp']['fileInfoList'][0]['fileDestUlr'],
                 size: result_json['result']['UploadFileRsp']['fileInfoList'][0]['size'].to_s
 
-            }] }.to_json
+            }] }.to_json.encode('utf-8')
 
             request.body = data
             response = http.request(request)
@@ -152,7 +152,7 @@ module Fastlane
               UI.success("App information saved.")
               return true
             else
-              UI.user_error!(result_json)
+              UI.user_error(result_json)
               UI.user_error!("Failed to save app information")
               return false
             end
