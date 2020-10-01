@@ -129,6 +129,7 @@ module Fastlane
             http.use_ssl = true
             request = Net::HTTP::Put.new(uri.request_uri)
             request["client_id"] = client_id
+            request["Content-Type"] = "application/json"
             request["Authorization"] = "Bearer #{token}"
 
             data = {fileType: 5, files: [{
